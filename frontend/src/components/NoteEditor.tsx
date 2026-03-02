@@ -195,6 +195,9 @@ export default function NoteEditor() {
         <input
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
+          onFocus={(e) => {
+            if (e.target.value === "Untitled") e.target.select();
+          }}
           placeholder="Untitled"
           disabled={note.is_trashed}
         />

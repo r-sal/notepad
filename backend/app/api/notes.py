@@ -32,6 +32,7 @@ async def list_notes(
     folder_id: str | None = Query(None),
     starred: bool | None = Query(None),
     trashed: bool | None = Query(None),
+    temporary: bool | None = Query(None),
     search: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -43,6 +44,17 @@ async def list_notes(
     else:
         # By default, exclude trashed notes
         query = query.where(Note.is_trashed == False)
+
+    # Temporary note filtering
+    if temporary is True:
+        # Scratchpad view — only temporary notes
+        query = query.where(Note.is_temporary == True)
+    elif trashed is True or starred is True or search:
+        # Starred and search views include both regular and temporary notes
+        pass
+    else:
+        # All Notes and folder views — exclude temporary notes
+        query = query.where(Note.is_temporary == False)
 
     if folder_id is not None:
         query = query.where(Note.folder_id == UUID(folder_id))
@@ -71,6 +83,7 @@ async def create_note(
         body=sanitize_body(body.body),
         folder_id=UUID(body.folder_id) if body.folder_id else None,
         user_id=current_user.id,
+        is_temporary=body.is_temporary,
     )
     db.add(note)
     await db.commit()
@@ -115,6 +128,8 @@ async def update_note(
         note.folder_id = UUID(body.folder_id) if body.folder_id else None
     if body.is_starred is not None:
         note.is_starred = body.is_starred
+    if body.is_temporary is not None:
+        note.is_temporary = body.is_temporary
 
     note.updated_at = func.now()
     await db.commit()
@@ -160,6 +175,32 @@ async def restore_note(
 
     note.is_trashed = False
     note.trashed_at = None
+    await db.commit()
+    await db.refresh(note)
+    return note
+
+
+@router.post("/{note_id}/promote", response_model=NoteResponse)
+async def promote_note(
+    note_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Note).where(
+            Note.id == UUID(note_id),
+            Note.user_id == current_user.id,
+            Note.is_temporary == True,
+        )
+    )
+    note = result.scalar_one_or_none()
+    if note is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Temporary note not found",
+        )
+
+    note.is_temporary = False
     await db.commit()
     await db.refresh(note)
     return note

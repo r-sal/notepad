@@ -84,6 +84,13 @@ export default function Sidebar() {
           <span className="label">Starred</span>
         </button>
         <button
+          className={`sidebar-item${viewFilter === "temporary" ? " active" : ""}`}
+          onClick={() => setViewFilter("temporary")}
+        >
+          <span className="icon">📋</span>
+          <span className="label">Scratchpad</span>
+        </button>
+        <button
           className={`sidebar-item${viewFilter === "trash" ? " active" : ""}`}
           onClick={() => setViewFilter("trash")}
         >

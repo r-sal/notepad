@@ -8,6 +8,7 @@ class NoteCreate(BaseModel):
     title: str = "Untitled"
     body: str = ""
     folder_id: str | None = None
+    is_temporary: bool = False
 
 
 class NoteUpdate(BaseModel):
@@ -15,6 +16,7 @@ class NoteUpdate(BaseModel):
     body: str | None = None
     folder_id: str | None = None
     is_starred: bool | None = None
+    is_temporary: bool | None = None
 
 
 class NoteResponse(BaseModel):
@@ -25,6 +27,7 @@ class NoteResponse(BaseModel):
     user_id: UUID
     is_starred: bool
     is_trashed: bool
+    is_temporary: bool
     trashed_at: datetime | None
     created_at: datetime
     updated_at: datetime
@@ -39,6 +42,7 @@ class NoteListResponse(BaseModel):
     folder_id: UUID | None
     is_starred: bool
     is_trashed: bool
+    is_temporary: bool
     trashed_at: datetime | None
     created_at: datetime
     updated_at: datetime

@@ -466,7 +466,7 @@ a {
 }
 .editor-content .tiptap code {
   background: #f0f0f0;
-  padding: 2px 4px;
+  padding: 0;
   border-radius: 3px;
   font-family: "SF Mono", "Fira Code", monospace;
   font-size: 13px;
@@ -500,6 +500,30 @@ a {
 
 .trash-bar .btn-delete-forever {
   background: var(--danger);
+  color: white;
+}
+
+/* ===== Scratchpad bar ===== */
+.temp-bar {
+  padding: 8px 16px;
+  background: #e8f0fe;
+  border-bottom: 1px solid #c2d4f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #1a56db;
+}
+
+.temp-bar button {
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.temp-bar .btn-promote {
+  background: var(--accent);
   color: white;
 }
 

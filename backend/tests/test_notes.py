@@ -252,3 +252,125 @@ class TestSanitization:
             assert res.status_code == 201
             assert "<script>" not in res.json()["body"]
             assert "<p>Hello</p>" in res.json()["body"]
+
+
+class TestTemporaryNotes:
+    async def test_create_temporary_note(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Scratch", is_temporary=True)
+            assert note["is_temporary"] is True
+
+    async def test_default_create_not_temporary(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Regular")
+            assert note["is_temporary"] is False
+
+    async def test_list_excludes_temporary_by_default(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            await create_note(client, tokens, title="Regular Note")
+            await create_note(client, tokens, title="Temp Note", is_temporary=True)
+            res = await client.get("/api/notes", headers=auth_header(tokens))
+            assert res.status_code == 200
+            titles = [n["title"] for n in res.json()]
+            assert "Regular Note" in titles
+            assert "Temp Note" not in titles
+
+    async def test_list_temporary_only(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            await create_note(client, tokens, title="Regular Note")
+            await create_note(client, tokens, title="Temp Note", is_temporary=True)
+            res = await client.get("/api/notes?temporary=true", headers=auth_header(tokens))
+            assert res.status_code == 200
+            titles = [n["title"] for n in res.json()]
+            assert "Regular Note" not in titles
+            assert "Temp Note" in titles
+
+    async def test_search_finds_temporary_notes(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            await create_note(client, tokens, title="Unique Scratchpad Item", body="findable text", is_temporary=True)
+            res = await client.get("/api/notes?search=scratchpad", headers=auth_header(tokens))
+            assert res.status_code == 200
+            titles = [n["title"] for n in res.json()]
+            assert "Unique Scratchpad Item" in titles
+
+    async def test_starred_includes_temporary(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Starred Temp", is_temporary=True)
+            # Star the temporary note
+            await client.put(
+                f"/api/notes/{note['id']}",
+                json={"is_starred": True},
+                headers=auth_header(tokens),
+            )
+            res = await client.get("/api/notes?starred=true", headers=auth_header(tokens))
+            assert res.status_code == 200
+            titles = [n["title"] for n in res.json()]
+            assert "Starred Temp" in titles
+
+    async def test_promote_note(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Promote Me", is_temporary=True)
+            res = await client.post(
+                f"/api/notes/{note['id']}/promote",
+                headers=auth_header(tokens),
+            )
+            assert res.status_code == 200
+            assert res.json()["is_temporary"] is False
+            # Now it should appear in All Notes
+            res = await client.get("/api/notes", headers=auth_header(tokens))
+            titles = [n["title"] for n in res.json()]
+            assert "Promote Me" in titles
+
+    async def test_promote_non_temporary_returns_404(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Regular")
+            res = await client.post(
+                f"/api/notes/{note['id']}/promote",
+                headers=auth_header(tokens),
+            )
+            assert res.status_code == 404
+
+    async def test_promote_via_update(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Via Update", is_temporary=True)
+            res = await client.put(
+                f"/api/notes/{note['id']}",
+                json={"is_temporary": False},
+                headers=auth_header(tokens),
+            )
+            assert res.status_code == 200
+            assert res.json()["is_temporary"] is False
+
+    async def test_temporary_note_can_be_trashed(self, client: AsyncClient):
+        async with client:
+            _, _, tokens = await create_user(client)
+            note = await create_note(client, tokens, title="Trash Temp", is_temporary=True)
+            res = await client.delete(
+                f"/api/notes/{note['id']}",
+                headers=auth_header(tokens),
+            )
+            assert res.status_code == 200
+            # Should appear in trash
+            res = await client.get("/api/notes?trashed=true", headers=auth_header(tokens))
+            titles = [n["title"] for n in res.json()]
+            assert "Trash Temp" in titles
+
+    async def test_promote_other_users_note_returns_404(self, client: AsyncClient):
+        async with client:
+            _, _, tokens_a = await create_user(client)
+            _, _, tokens_b = await create_user(client)
+            note = await create_note(client, tokens_a, title="A's Temp", is_temporary=True)
+            res = await client.post(
+                f"/api/notes/{note['id']}/promote",
+                headers=auth_header(tokens_b),
+            )
+            assert res.status_code == 404

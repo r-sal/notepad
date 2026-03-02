@@ -54,6 +54,7 @@ export default function NoteList() {
 
   let title = "All Notes";
   if (viewFilter === "starred") title = "Starred";
+  if (viewFilter === "temporary") title = "Scratchpad";
   if (viewFilter === "trash") title = "Trash";
   if (activeFolderId) title = "Folder";
 
@@ -95,6 +96,7 @@ export default function NoteList() {
           >
             <div className="note-item-title">
               {note.is_starred && "⭐ "}
+              {note.is_temporary && "📋 "}
               {note.title || "Untitled"}
             </div>
             <div className="note-item-preview">

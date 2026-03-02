@@ -79,7 +79,7 @@ function Toolbar({ editor }: { editor: ReturnType<typeof useEditor> }) {
 }
 
 export default function NoteEditor() {
-  const { notes, selectedNoteId, updateNote, trashNote, restoreNote, permanentDeleteNote } =
+  const { notes, selectedNoteId, updateNote, trashNote, restoreNote, permanentDeleteNote, promoteNote } =
     useNoteStore();
   const note = notes.find((n) => n.id === selectedNoteId);
   const [title, setTitle] = useState("");
@@ -159,6 +159,15 @@ export default function NoteEditor() {
         </div>
       )}
 
+      {note.is_temporary && !note.is_trashed && (
+        <div className="temp-bar">
+          <span>This is a scratchpad note.</span>
+          <button className="btn-promote" onClick={() => promoteNote(note.id)}>
+            Promote to Note
+          </button>
+        </div>
+      )}
+
       <Toolbar editor={editor} />
 
       <div className="editor-toolbar" style={{ borderBottom: "none", paddingBottom: 0 }}>
@@ -166,6 +175,11 @@ export default function NoteEditor() {
         <div className="note-actions">
           {!note.is_trashed && (
             <>
+              {note.is_temporary && (
+                <button onClick={() => promoteNote(note.id)} title="Promote to regular note">
+                  📤
+                </button>
+              )}
               <button onClick={handleStar} title={note.is_starred ? "Unstar" : "Star"}>
                 {note.is_starred ? "⭐" : "☆"}
               </button>

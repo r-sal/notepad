@@ -26,9 +26,10 @@ async def create_note(
     title: str = "Test Note",
     body: str = "Test body content",
     folder_id: str | None = None,
+    is_temporary: bool = False,
 ) -> dict:
     """Create a note and return the response data."""
-    payload = {"title": title, "body": body}
+    payload: dict = {"title": title, "body": body, "is_temporary": is_temporary}
     if folder_id:
         payload["folder_id"] = folder_id
     res = await client.post("/api/notes", json=payload, headers=auth_header(tokens))

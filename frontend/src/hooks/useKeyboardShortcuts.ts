@@ -8,6 +8,7 @@ import { useNoteStore } from "../stores/noteStore";
  * Cmd/Ctrl + Shift + F  → Focus search
  * Cmd/Ctrl + Backspace  → Trash selected note
  * Cmd/Ctrl + Shift + S  → Toggle star on selected note
+ * Cmd/Ctrl + Shift + P  → Promote temporary note to regular note
  * ArrowUp / ArrowDown   → Navigate note list (when not in editor)
  */
 export function useKeyboardShortcuts() {
@@ -55,6 +56,17 @@ export function useKeyboardShortcuts() {
         const note = notes.find((n) => n.id === selectedNoteId);
         if (note && !note.is_trashed) {
           useNoteStore.getState().updateNote(note.id, { is_starred: !note.is_starred });
+        }
+        return;
+      }
+
+      // Cmd+Shift+P — promote temporary note to regular note
+      if (mod && e.shiftKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        const { selectedNoteId, notes } = useNoteStore.getState();
+        const note = notes.find((n) => n.id === selectedNoteId);
+        if (note && note.is_temporary && !note.is_trashed) {
+          useNoteStore.getState().promoteNote(note.id);
         }
         return;
       }

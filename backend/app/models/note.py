@@ -18,6 +18,7 @@ class Note(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     is_starred: Mapped[bool] = mapped_column(Boolean, default=False)
     is_trashed: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_temporary: Mapped[bool] = mapped_column(Boolean, default=False)
     trashed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())

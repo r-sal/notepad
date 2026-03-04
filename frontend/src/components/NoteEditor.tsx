@@ -83,6 +83,7 @@ export default function NoteEditor() {
     useNoteStore();
   const note = notes.find((n) => n.id === selectedNoteId);
   const [title, setTitle] = useState("");
+  const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isUpdatingRef = useRef(false);
 
@@ -122,6 +123,13 @@ export default function NoteEditor() {
       if (currentContent !== note.body) {
         editor.commands.setContent(note.body || "", false);
       }
+    }
+    // Auto-focus and select title for new notes
+    if (note.title === "Untitled" && !note.body) {
+      setTimeout(() => {
+        titleRef.current?.focus();
+        titleRef.current?.select();
+      }, 0);
     }
   }, [note?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -193,6 +201,7 @@ export default function NoteEditor() {
 
       <div className="editor-title">
         <input
+          ref={titleRef}
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           onFocus={(e) => {

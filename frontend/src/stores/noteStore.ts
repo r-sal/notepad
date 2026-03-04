@@ -30,7 +30,7 @@ interface NoteState {
 export const useNoteStore = create<NoteState>((set, get) => ({
   notes: [],
   selectedNoteId: null,
-  viewFilter: "all",
+  viewFilter: "temporary",
   activeFolderId: null,
   searchQuery: "",
   isLoading: false,

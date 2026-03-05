@@ -72,9 +72,13 @@ export default function Sidebar({
     <div className="sidebar">
       <div className="sidebar-header">
         <h2>Notepad</h2>
-        {collapsed && (
-          <button className="btn-toggle" onClick={onToggle} title="Expand sidebar">
+        {collapsed ? (
+          <button className="btn-toggle" onClick={onToggle} title="Expand panels">
             ☰
+          </button>
+        ) : (
+          <button className="btn-collapse-panels" onClick={onToggle} title="Collapse panels">
+            ◀
           </button>
         )}
       </div>
@@ -147,7 +151,13 @@ export default function Sidebar({
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <button onClick={logout} title="Sign out">Sign out</button>
+        <button onClick={logout} title="Sign out">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ verticalAlign: "middle", marginRight: collapsed ? 0 : 6 }}>
+            <path d="M12 2v8" />
+            <path d="M17.66 6.34A8 8 0 1 1 6.34 6.34" />
+          </svg>
+          {!collapsed && "Sign out"}
+        </button>
       </div>
     </div>
   );

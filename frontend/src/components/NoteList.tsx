@@ -23,12 +23,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function NoteList({
-  collapsed,
-  onToggle,
   onNoteSelect,
 }: {
-  collapsed: boolean;
-  onToggle: () => void;
   onNoteSelect: () => void;
 }) {
   const {
@@ -71,17 +67,6 @@ export default function NoteList({
   if (viewFilter === "trash") title = "Trash";
   if (activeFolderId) title = "Folder";
 
-  // Collapsed strip
-  if (collapsed) {
-    return (
-      <div className="notelist notelist-strip">
-        <button className="btn-toggle" onClick={onToggle} title="Expand notes list">
-          📄
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="notelist">
       <div className="notelist-header">
@@ -89,12 +74,11 @@ export default function NoteList({
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           {viewFilter !== "trash" && (
             <button className="btn-icon" onClick={createNote} title="New note">
-              ✏️
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
             </button>
           )}
-          <button className="btn-collapse" onClick={onToggle} title="Collapse notes list">
-            ◀
-          </button>
         </div>
       </div>
 

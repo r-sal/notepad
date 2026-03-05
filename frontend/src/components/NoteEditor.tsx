@@ -178,8 +178,19 @@ export default function NoteEditor() {
 
       <Toolbar editor={editor} />
 
-      <div className="editor-toolbar" style={{ borderBottom: "none", paddingBottom: 0 }}>
-        <div className="spacer" />
+      <div className="editor-title-row">
+        <div className="editor-title">
+          <input
+            ref={titleRef}
+            value={title}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            onFocus={(e) => {
+              if (e.target.value === "Untitled") e.target.select();
+            }}
+            placeholder="Untitled"
+            disabled={note.is_trashed}
+          />
+        </div>
         <div className="note-actions">
           {!note.is_trashed && (
             <>
@@ -197,19 +208,6 @@ export default function NoteEditor() {
             </>
           )}
         </div>
-      </div>
-
-      <div className="editor-title">
-        <input
-          ref={titleRef}
-          value={title}
-          onChange={(e) => handleTitleChange(e.target.value)}
-          onFocus={(e) => {
-            if (e.target.value === "Untitled") e.target.select();
-          }}
-          placeholder="Untitled"
-          disabled={note.is_trashed}
-        />
       </div>
 
       <div className="editor-content">

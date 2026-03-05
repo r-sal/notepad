@@ -400,17 +400,22 @@ a {
   color: var(--accent);
 }
 
-.editor-toolbar .spacer {
-  flex: 1;
+.editor-title-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px 0;
+  gap: 8px;
 }
 
-.editor-toolbar .note-actions {
+.editor-title-row .note-actions {
   display: flex;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .editor-title {
-  padding: 16px 24px 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .editor-title input {
@@ -548,8 +553,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 100%;
+  padding: 6px 8px;
   border: none;
   background: none;
   cursor: pointer;
@@ -561,7 +566,50 @@ a {
   background: var(--bg-hover);
 }
 
-.btn-collapse {
+
+/* ===== Panels collapsed ===== */
+.panels-collapsed .sidebar {
+  width: 56px;
+  min-width: 56px;
+}
+.panels-collapsed .sidebar-header h2 {
+  display: none;
+}
+.panels-collapsed .sidebar-header {
+  justify-content: center;
+}
+.panels-collapsed .sidebar-item .label {
+  display: none;
+}
+.panels-collapsed .sidebar-item {
+  justify-content: center;
+  padding-left: 0 !important;
+  padding-right: 0;
+}
+.panels-collapsed .sidebar-item .icon {
+  width: auto;
+}
+.panels-collapsed .sidebar-section-title span {
+  display: none;
+}
+.panels-collapsed .sidebar-section-title {
+  justify-content: center;
+}
+.panels-collapsed .new-folder-input {
+  display: none;
+}
+.panels-collapsed .sidebar-footer button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.panels-collapsed .notelist {
+  display: none;
+}
+
+/* Collapse button in sidebar header — only visible below breakpoint */
+.btn-collapse-panels {
   display: none;
   align-items: center;
   justify-content: center;
@@ -574,78 +622,11 @@ a {
   border-radius: var(--radius);
   color: var(--text-muted);
 }
-.btn-collapse:hover {
+.btn-collapse-panels:hover {
   background: var(--bg-hover);
 }
-
-/* Collapsed notelist strip */
-.notelist-strip {
-  width: 40px !important;
-  min-width: 40px !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 12px;
-}
-
-/* ===== Sidebar collapsed ===== */
-.sidebar-collapsed .sidebar {
-  width: 56px;
-  min-width: 56px;
-}
-.sidebar-collapsed .sidebar-header h2 {
-  font-size: 0;
-  line-height: 0;
-  overflow: hidden;
-}
-.sidebar-collapsed .sidebar-header h2::before {
-  content: "📝";
-  font-size: 20px;
-  line-height: normal;
-}
-.sidebar-collapsed .sidebar-header .btn-toggle {
-  margin: 4px auto 0;
-}
-.sidebar-collapsed .sidebar-item .label {
-  display: none;
-}
-.sidebar-collapsed .sidebar-item {
-  justify-content: center;
-  padding-left: 0 !important;
-  padding-right: 0;
-}
-.sidebar-collapsed .sidebar-item .icon {
-  width: auto;
-}
-.sidebar-collapsed .sidebar-section-title span {
-  display: none;
-}
-.sidebar-collapsed .sidebar-section-title {
-  justify-content: center;
-}
-.sidebar-collapsed .new-folder-input {
-  display: none;
-}
-.sidebar-collapsed .sidebar-footer button {
-  font-size: 0;
-  line-height: 0;
-  padding: 8px;
-}
-.sidebar-collapsed .sidebar-footer button::before {
-  content: "🚪";
-  font-size: 16px;
-  line-height: normal;
-}
-
-/* Show collapse button on notelist only when below notelist breakpoint */
-.notelist-collapsed .btn-collapse,
-.notelist-strip ~ .editor-pane .btn-collapse {
-  display: flex;
-}
-
-/* ===== Responsive: auto-show collapse button on notelist ===== */
-@media (max-width: 700px) {
-  .btn-collapse {
+@media (max-width: 900px) {
+  .btn-collapse-panels {
     display: flex;
   }
 }

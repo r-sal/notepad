@@ -6,36 +6,23 @@ import NoteEditor from "./NoteEditor";
 import NoteList from "./NoteList";
 import Sidebar from "./Sidebar";
 
-const SIDEBAR_BP = 900;
-const NOTELIST_BP = 700;
+const PANELS_BP = 900;
 
 export default function Layout() {
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchFolders = useFolderStore((s) => s.fetchFolders);
   useKeyboardShortcuts();
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () => window.innerWidth <= SIDEBAR_BP,
-  );
-  const [notelistCollapsed, setNotelistCollapsed] = useState(
-    () => window.innerWidth <= NOTELIST_BP,
+  const [panelsCollapsed, setPanelsCollapsed] = useState(
+    () => window.innerWidth <= PANELS_BP,
   );
 
   // Auto-collapse/expand on window resize via matchMedia
   useEffect(() => {
-    const sidebarMq = window.matchMedia(`(max-width: ${SIDEBAR_BP}px)`);
-    const notelistMq = window.matchMedia(`(max-width: ${NOTELIST_BP}px)`);
-
-    const handleSidebar = (e: MediaQueryListEvent) => setSidebarCollapsed(e.matches);
-    const handleNotelist = (e: MediaQueryListEvent) => setNotelistCollapsed(e.matches);
-
-    sidebarMq.addEventListener("change", handleSidebar);
-    notelistMq.addEventListener("change", handleNotelist);
-
-    return () => {
-      sidebarMq.removeEventListener("change", handleSidebar);
-      notelistMq.removeEventListener("change", handleNotelist);
-    };
+    const mq = window.matchMedia(`(max-width: ${PANELS_BP}px)`);
+    const handler = (e: MediaQueryListEvent) => setPanelsCollapsed(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
   useEffect(() => {
@@ -43,27 +30,18 @@ export default function Layout() {
     fetchFolders();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleSidebar = useCallback(() => setSidebarCollapsed((v) => !v), []);
-  const toggleNotelist = useCallback(() => setNotelistCollapsed((v) => !v), []);
+  const togglePanels = useCallback(() => setPanelsCollapsed((v) => !v), []);
 
-  const collapseNotelist = useCallback(() => {
-    if (window.innerWidth <= NOTELIST_BP) {
-      setNotelistCollapsed(true);
+  const collapsePanels = useCallback(() => {
+    if (window.innerWidth <= PANELS_BP) {
+      setPanelsCollapsed(true);
     }
   }, []);
 
-  const classes = [
-    "app-layout",
-    sidebarCollapsed ? "sidebar-collapsed" : "",
-    notelistCollapsed ? "notelist-collapsed" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
   return (
-    <div className={classes}>
-      <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
-      <NoteList collapsed={notelistCollapsed} onToggle={toggleNotelist} onNoteSelect={collapseNotelist} />
+    <div className={`app-layout${panelsCollapsed ? " panels-collapsed" : ""}`}>
+      <Sidebar collapsed={panelsCollapsed} onToggle={togglePanels} />
+      <NoteList onNoteSelect={collapsePanels} />
       <NoteEditor />
     </div>
   );

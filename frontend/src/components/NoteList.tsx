@@ -22,7 +22,15 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-export default function NoteList() {
+export default function NoteList({
+  collapsed,
+  onToggle,
+  onNoteSelect,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+  onNoteSelect: () => void;
+}) {
   const {
     notes,
     selectedNoteId,
@@ -44,6 +52,11 @@ export default function NoteList() {
     }, 300);
   };
 
+  const handleNoteClick = (id: string) => {
+    selectNote(id);
+    onNoteSelect();
+  };
+
   // Select first note when notes change and nothing selected
   useEffect(() => {
     const first = notes[0];
@@ -58,15 +71,31 @@ export default function NoteList() {
   if (viewFilter === "trash") title = "Trash";
   if (activeFolderId) title = "Folder";
 
+  // Collapsed strip
+  if (collapsed) {
+    return (
+      <div className="notelist notelist-strip">
+        <button className="btn-toggle" onClick={onToggle} title="Expand notes list">
+          📄
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="notelist">
       <div className="notelist-header">
         <h3>{title}</h3>
-        {viewFilter !== "trash" && (
-          <button className="btn-icon" onClick={createNote} title="New note">
-            ✏️
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          {viewFilter !== "trash" && (
+            <button className="btn-icon" onClick={createNote} title="New note">
+              ✏️
+            </button>
+          )}
+          <button className="btn-collapse" onClick={onToggle} title="Collapse notes list">
+            ◀
           </button>
-        )}
+        </div>
       </div>
 
       <div className="notelist-search">
@@ -92,7 +121,7 @@ export default function NoteList() {
           <div
             key={note.id}
             className={`note-item${selectedNoteId === note.id ? " active" : ""}`}
-            onClick={() => selectNote(note.id)}
+            onClick={() => handleNoteClick(note.id)}
           >
             <div className="note-item-title">
               {note.is_starred && "⭐ "}

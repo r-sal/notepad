@@ -22,6 +22,7 @@ function FolderItem({
         className={`sidebar-item${activeFolderId === folder.id ? " active" : ""}`}
         style={{ paddingLeft: 8 + depth * 16 }}
         onClick={() => setActiveFolderId(folder.id)}
+        title={folder.name}
       >
         <span className="icon" onClick={(e) => {
           if (hasChildren) { e.stopPropagation(); setExpanded(!expanded); }
@@ -41,7 +42,13 @@ function FolderItem({
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({
+  collapsed,
+  onToggle,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
   const logout = useAuthStore((s) => s.logout);
   const { folders, createFolder } = useFolderStore();
   const { viewFilter, setViewFilter, activeFolderId, setActiveFolderId } = useNoteStore();
@@ -65,6 +72,11 @@ export default function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-header">
         <h2>Notepad</h2>
+        {collapsed && (
+          <button className="btn-toggle" onClick={onToggle} title="Expand sidebar">
+            ☰
+          </button>
+        )}
       </div>
 
       {/* Virtual folders */}
@@ -72,6 +84,7 @@ export default function Sidebar() {
         <button
           className={`sidebar-item${viewFilter === "all" && !activeFolderId ? " active" : ""}`}
           onClick={() => { setViewFilter("all"); setActiveFolderId(null); }}
+          title="All Notes"
         >
           <span className="icon">📝</span>
           <span className="label">All Notes</span>
@@ -79,6 +92,7 @@ export default function Sidebar() {
         <button
           className={`sidebar-item${viewFilter === "starred" ? " active" : ""}`}
           onClick={() => setViewFilter("starred")}
+          title="Starred"
         >
           <span className="icon">⭐</span>
           <span className="label">Starred</span>
@@ -86,6 +100,7 @@ export default function Sidebar() {
         <button
           className={`sidebar-item${viewFilter === "temporary" ? " active" : ""}`}
           onClick={() => setViewFilter("temporary")}
+          title="Scratchpad"
         >
           <span className="icon">📋</span>
           <span className="label">Scratchpad</span>
@@ -93,6 +108,7 @@ export default function Sidebar() {
         <button
           className={`sidebar-item${viewFilter === "trash" ? " active" : ""}`}
           onClick={() => setViewFilter("trash")}
+          title="Trash"
         >
           <span className="icon">🗑️</span>
           <span className="label">Trash</span>
@@ -131,7 +147,7 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <button onClick={logout}>Sign out</button>
+        <button onClick={logout} title="Sign out">Sign out</button>
       </div>
     </div>
   );
